@@ -1,0 +1,43 @@
+# Runtime and index data
+/index/*
+!/index/.gitkeep
+/run/*
+!/run/.gitkeep
+/cache/*
+!/cache/.gitkeep
+/logs/*
+!/logs/.gitkeep
+/.codegraph/
+
+# Local configuration, machine-specific scripts, and credentials
+/config/knowledge-bases.yaml
+/config/*.local.yaml
+/scripts/knowledgehub-daily-scan.sh
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*credential*
+*secret*
+credentials.json
+service-account*.json
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store

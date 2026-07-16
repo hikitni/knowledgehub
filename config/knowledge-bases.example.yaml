@@ -1,0 +1,117 @@
+version: 1
+
+hub:
+  root: /Users/your-user/KnowledgeHub
+  database: /Users/your-user/KnowledgeHub/index/knowledge.db
+  lock_dir: /Users/your-user/KnowledgeHub/run
+  # PID 缺失或损坏的锁目录超过 6 小时后才允许按 stale lock 清理。
+  stale_lock_seconds: 21600
+  log_dir: /Users/your-user/KnowledgeHub/logs
+  timezone: Asia/Shanghai
+
+indexing:
+  startup_scan: true
+  watch_enabled: false
+  # 每天 12:00 的任务会执行一次 reconcile，因此 V1 可以先不开常驻监听。
+  reconcile_before_incremental: true
+  hash_algorithm: sha256
+  max_file_size_mb: 50
+  preserve_last_good_index_on_error: true
+  # 文件首次被观察为不存在后，等待 10 秒并再次 stat；仍不存在才删除索引。
+  # 用于防止编辑器原子替换、Git checkout 或短暂挂载抖动导致误删，不是保留天数。
+  delete_grace_seconds: 10
+  debounce_milliseconds: 800
+  fulltext:
+    engine: sqlite-fts5
+    tokenizer: trigram
+  semantic:
+    enabled: false
+
+schedule:
+  enabled: true
+  type: launchd
+  hour: 12
+  minute: 0
+  run_if_no_changes: true
+
+notification:
+  enabled: true
+  provider: lark-bot
+  send_when_no_changes: true
+  # 优先复用现有飞书通知脚本；脚本内部的凭据不得复制进本项目。
+  notify_script: /path/to/notification-script.sh
+  title_prefix: KnowledgeHub
+  retry_count: 3
+  retry_backoff_seconds: 5
+
+knowledge_bases:
+  daily-work:
+    name: 日常工作知识库
+    enabled: true
+    type: document-vault
+    roots:
+      - path: /Users/your-user/KnowledgeBases/DailyWork
+        project_id: daily-work
+    include:
+      - "**/*.md"
+      - "**/*.txt"
+      - "**/*.html"
+      - "**/*.pdf"
+      - "**/*.docx"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "**/*.json"
+    exclude:
+      - "**/.obsidian/**"
+      - "**/.trash/**"
+      - "**/.git/**"
+      - "**/.DS_Store"
+      - "**/.env"
+      - "**/.env.*"
+      - "**/*.pem"
+      - "**/*.key"
+      - "**/*.p12"
+      - "**/*.jks"
+      - "**/*secret*"
+      - "**/*credential*"
+
+  business-dev:
+    name: 业务开发知识库
+    enabled: false
+    type: project-collection
+    # !!! 占位配置，禁止直接启用 !!!
+    # 启用前必须删除 REPLACE_WITH_PROJECT，并将 roots 改为明确的业务项目目录；不建议索引整个 workspace。
+    roots:
+      - path: /Users/your-user/workspace/REPLACE_WITH_PROJECT
+        project_id: replace-with-project-id
+    include:
+      - "README.md"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "docs/**/*.md"
+      - "docs/**/*.txt"
+      - "docs/**/*.pdf"
+      - "docs/**/*.docx"
+      - "docs/**/*.yaml"
+      - "docs/**/*.yml"
+      - "docs/**/*.json"
+      - ".ai/PROJECT_CONTEXT.md"
+      - ".ai/PROJECT_STATE.md"
+    exclude:
+      - "**/.git/**"
+      - "**/.idea/**"
+      - "**/.vscode/**"
+      - "**/node_modules/**"
+      - "**/target/**"
+      - "**/build/**"
+      - "**/dist/**"
+      - "**/logs/**"
+      - "**/*.log"
+      - "**/.env"
+      - "**/.env.*"
+      - "**/*.pem"
+      - "**/*.key"
+      - "**/*.p12"
+      - "**/*.jks"
+      - "**/*secret*"
+      - "**/*credential*"
